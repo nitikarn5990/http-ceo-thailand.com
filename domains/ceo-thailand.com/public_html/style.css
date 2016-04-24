@@ -1,0 +1,19 @@
+@charset "utf-8";
+/* CSS Document */
+body{ padding:0; margin:0; background:#e2e1e1; font:normal 13px Arial, Helvetica, sans-serif; color:#383838;}
+img{ border:0;}
+h1{ color:#571a9a; font:16px bold Arial, Helvetica, sans-serif; padding:0; margin:0;}
+#topmenu{ width:100%; background: url(images/bgtopmenu.jpg) left top repeat-x; height:128px;}
+#menu{ width:960px; margin:0 auto; padding:50px 0 0 0; color:#fff;}
+#menu ul{list-style:none; padding:0 0 0 20px; margin:0 auto; text-align:center; font:18px normal Arial, Helvetica, sans-serif;}
+#menu li{display:block; float:left; padding:10px 0px; margin:0 25px;}
+#menu li a{color:#fff; text-decoration: none;}
+#menu li a:hover{color:#f2840d; text-decoration: none;}
+#slide{ margin:0 auto; padding:0; width:960px;}
+#tab{ width:960px; margin:0 auto; padding:10px; text-align:center; border:2px solid #571a9a; font:16px normal Arial, Helvetica, sans-serif; color:#571a9a;}
+#container{ width:974px; margin:0 auto; padding:10px 0;}
+.sidebarleft{ float:left; width:241px;}
+.content{ float:right; width:704px;}
+.clear{ clear:both;}
+#footer{ clear:both; width:960px; margin:0 auto; padding:10px 0; text-align:center; background:#cdc6d4; border-top:1px dashed #444444; color:#fff;}
+
