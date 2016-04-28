@@ -349,9 +349,12 @@ if ($_GET['id'] != '' && $_GET['action'] == 'edit') {
                                     <td class="center" width=""><i class="icol-<?php echo ($row['status'] == 'ใช้งาน') ? 'accept' : 'cross' ?>" title="<?php echo $row['status'] ?>"></i></td>
                                     <td class="center" width=""><?php echo $functions->ShowDateThTime($row['updated_at']) ?></td>
                                     <td class="center" width=""><?php echo $row['sort']; ?></td>
-                                    <td class="center"  width=""><a href="<?php echo ADDRESS_ADMIN_CONTROL ?>home_banner&action=edit&id=<?php echo $row['id'] ?>" class="btn btn-primary btn-small">แก้ไข / ดู</a> <a href="javascript:;" onclick="if (confirm('คุณต้องการลบข้อมูลนี้หรือใม่?') == true) {
+                                    <td class="center"  width=""><a href="<?php echo ADDRESS_ADMIN_CONTROL ?>home_banner&action=edit&id=<?php echo $row['id'] ?>" class="btn btn-primary btn-small">แก้ไข / ดู</a> 
+                                        <?php if($row['id'] != 6){?><a href="javascript:;" onclick="if (confirm('คุณต้องการลบข้อมูลนี้หรือใม่?') == true) {
                                                         document.location.href = '<?php echo ADDRESS_ADMIN_CONTROL ?>home_banner&action=del&id=<?php echo $row['id'] ?>'
-                                                                }" class="btn btn-danger btn-small">ลบ</a></td>
+                                                                }" class="btn btn-danger btn-small">ลบ</a>
+                                        <?php } ?>                         
+                                    </td>
                                 </tr>
                             <?php } ?>
                         </tbody>

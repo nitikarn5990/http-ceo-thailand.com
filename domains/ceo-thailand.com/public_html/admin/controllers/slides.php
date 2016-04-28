@@ -87,19 +87,14 @@ if ($_POST['submit_bt'] == 'บันทึกข้อมูล' || $_POST['sub
                     //$slides->SetValue('slides_file_name', $newImage);
              
 
-                    $slides_file->SetValue('file_name', $newImage);
+                    //$slides->SetValue('image', $newImage);
 
 
-                    $slides_file->SetValue('alt_tag', $_POST['alt_tag']);
-
-
-                    $slides_file->SetValue('slides_id', $slides->GetPrimary());
-
+                  //  $slides->SetValue('alt_tag', $_POST['alt_tag']);
 
                     //$product_files->Save();
 
-
-                    if ($slides_file->Save()) {
+                    if ( $slides->UpdateSQL(array('image' => $newImage), array('id' => $slides->GetPrimary()))) {
 
                         SetAlert('เพิ่ม แก้ไข ข้อมูลสำเร็จ', 'success');
 
@@ -114,8 +109,6 @@ if ($_POST['submit_bt'] == 'บันทึกข้อมูล' || $_POST['sub
         }
 
         ////////
-
-
 
 
 
@@ -256,6 +249,7 @@ if ($_GET['id'] != '' && $_GET['action'] == 'edit') {
                     <form id="validate" enctype="multipart/form-data" action="<?php echo ADDRESS_ADMIN_CONTROL ?>slides<?php echo ($slides->GetPrimary() != '') ? '&id=' . $slides->GetPrimary() : ''; ?>" method="post" class="da-form">
                         <?php if ($slides->GetPrimary() != ''): ?>
                             <input type="hidden" name="id" value="<?php echo $slides->GetPrimary() ?>" />
+                               <input type="hidden" name="image" value="<?php echo $slides->GetValue('image') ?>" />
                             <input type="hidden" name="created_at" value="<?php echo $slides->GetValue('created_at') ?>" />
                         <?php endif; ?>
                         <div class="da-form-inline">
@@ -274,7 +268,7 @@ if ($_GET['id'] != '' && $_GET['action'] == 'edit') {
                                             <li> 
                                                 <span class="">
                                                     <?php if ($slides->GetPrimary() != '') { ?>
-                                                        <img src="<?php echo ADDRESS_SLIDES . $slides_file->getDataDescLastID("file_name", "slides_id = " . $slides->GetPrimary()) ?>" alt="<?php echo $slides->GetValue('alt_tag') ?>" style="max-width: 100%;" class="img-thumbnail"> 
+                                                        <img src="<?php echo ADDRESS_SLIDES . $slides->GetValue("image") ?>" alt="<?php echo $slides->GetValue('alt_tag') ?>" style="max-width: 100%;" class="img-thumbnail"> 
                                                     <?php } ?>
                                                 </span> 
                                             </li>
@@ -376,7 +370,7 @@ if ($_GET['id'] != '' && $_GET['action'] == 'edit') {
                                 <tr>
                                     <td class="center" width="15"><?php echo $row['id']; ?></td>
                                     <td  width=""><?php echo $row['slides_name']; ?></td>
-                                    <td class="center"  width=""><img src="<?php echo $slides_file->getDataDescLastID("file_name", "slides_id = '" . $row['id'] . "'") == "" ? NO_IMAGE : ADDRESS_SLIDES . $slides_file->getDataDescLastID("file_name", "slides_id = '" . $row['id'] . "'") ?>" style="height:70px; width:150px;"></td>
+                                    <td class="center"  width=""><img src="<?php echo $row['image'] == "" ? NO_IMAGE : ADDRESS_SLIDES . $row['image'] ?>" style="height:70px; width:150px;"></td>
                                     <td class="center" width=""><i class="icol-<?php echo ($row['status'] == 'ใช้งาน') ? 'accept' : 'cross' ?>" title="<?php echo $row['status'] ?>"></i></td>
                                     <td class="center" width=""><?php echo $functions->ShowDateThTime($row['updated_at']) ?></td>
                                     <td class="center" width=""><?php echo $row['sort']; ?></td>

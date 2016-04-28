@@ -1,6 +1,19 @@
 <?php
 
 class Utility {
+    
+    function ArrayRandom($my_array = array()) {
+    $copy = array();
+    while (count($my_array)) {
+        // takes a rand array elements by its key
+        $element = array_rand($my_array);
+        // assign the array and its value to an another array
+        $copy[$element] = $my_array[$element];
+        //delete the element from source array
+        unset($my_array[$element]);
+    }
+    return $copy;
+}
 
     function UpdateSql2($str_sql) {
         $res = false;
@@ -553,10 +566,10 @@ class Utility {
                 return( array('years' => $years, 'months' => $months, 'days' => $days, 'hours' => $hours, 'minutes' => $minutes, 'seconds' => $diff) );
             }
             else {
-                echo "over";
+                return "over";
             }
         } else {
-            echo "Invalid date/time data detected";
+            return "Invalid date/time data detected";
         }
     }
 

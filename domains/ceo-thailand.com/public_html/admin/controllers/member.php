@@ -1,17 +1,9 @@
 <?php
 // If they are saving the Information	
-
-
-
-$now = DATE_TIME;
-$start_date = strtotime($now);
-$end_date = strtotime("+7 day", $start_date);
 //echo date('Y-m-d', $start_date) . '  + 7 days =  ' . date('Y-m-d', $end_date);
-
-$date1 = "2016-04-7 22:00:01";
-$date2 = "2016-04-7 22:00:00";
-
- echo $functions->date_getFullTimeDifference($date1,$date2);
+//$date1 = "2016-04-7 22:00:01";
+//$date2 = "2016-04-7 22:00:00";
+// $functions->date_getFullTimeDifference($date1,$date2);
 
 
 
@@ -43,26 +35,22 @@ if ($_POST['submit_bt'] == 'บันทึกข้อมูล' || $_POST['sub
 
         $member->SetValue('created_at', DATE_TIME);
 
-
-        $member->SetValue('updated_at', DATE_TIME);
+        $start_date = strtotime(DATE_TIME);
+        $end_date_at = date('Y-m-d 00:00:00', strtotime("+7 day", $start_date));
+        $member->SetValue('end_date_at', $end_date_at);
     } else {
-
 
         $member->SetValue('updated_at', DATE_TIME);
     }
-
 
     $member_parent = $functions->replaceQuote($_POST['member_name']);
 
     $member->SetValue('member_parent', json_encode($member_parent));
     //$member->updateSQL(array('member_parent' => json_encode($member_parent)), array('id' => $member->GetValue('id')));
 
-
-
     if ($member->Save()) {
 
         //  SetAlert('เพิ่ม แก้ไข ข้อมูลสำเร็จ', 'success');
-
 
         if (isset($_FILES['file_array'])) {
 
@@ -72,8 +60,6 @@ if ($_POST['submit_bt'] == 'บันทึกข้อมูล' || $_POST['sub
 
             //loop file array
             for ($i = 0; $i < count($_FILES['file_array']['tmp_name']); $i++) {
-
-
                 if ($_FILES["file_array"]["name"][$i] != "") {
 
                     $filename = $_FILES['file_array']['name'][$i];
@@ -95,9 +81,7 @@ if ($_POST['submit_bt'] == 'บันทึกข้อมูล' || $_POST['sub
                         //   die();
                         $cdir = getcwd(); // Save the current directory
 
-
                         chdir($targetPath);
-
 
                         copy($_FILES['file_array']['tmp_name'][$i], $targetPath . $newImage);
 
@@ -122,9 +106,46 @@ if ($_POST['submit_bt'] == 'บันทึกข้อมูล' || $_POST['sub
                 }
             }
         }
+        
+       
+        //Set ภาพโฆษณา เริ่มต้น
+        if (  $user_banner->CountDataDesc('id', 'member_id = ' . $member->GetValue('id') . ' AND current_show = 1')  < $member->GetValue('number_of_ad')) {
+           
+            //keep all id 
+            $arrayKey = array();
+            $sql = "SELECT * FROM " . $user_banner->getTbl() . " WHERE member_id = " . $member->GetValue('id') . "  AND status = 'unclick'";
+            $query = $db->Query($sql);
+            if ($db->NumRows($query) > 0) {
+                
+                while ($row = $db->FetchArray($query)) {
+                    $arrayKey[] = $row['id'];
+                }
+
+                $cnt_id = 0;
+                $adID = '';
+                foreach ($functions->ArrayRandom($arrayKey) as $key => $val) {
+                    if ($cnt_id < $member->GetValue('number_of_ad')) {
+                        $adID .= ',' . $val;
+                        $cnt_id++;
+                    }
+                }
+
+                $arrForRandom = explode(',', substr($adID, 1));
+                foreach ($arrForRandom as $val_id) {
+                    //
+                    $sqlImg = "SELECT * FROM " . $user_banner->getTbl() . " WHERE id = " . $val_id . "  AND status = 'unclick'";
+                    $queryImg = $db->Query($sqlImg);
+
+                    if ($db->NumRows($queryImg) > 0) {
+                        while ($row = $db->FetchArray($queryImg)) {
+                            $user_banner->updateSQL(array('current_show' => '1'), array('id' => $row['id']));
+                        }
+                    }
+                }
+            }
+        }
 
         ////////
-
 
         if ($redirect) {
 
@@ -246,7 +267,14 @@ if ($_GET['id'] != '' && $_GET['action'] == 'edit') {
         <div class="span12">
 
             <div class="da-panel collapsible">
-                <div class="da-panel-header"> <span class="da-panel-title"> <i class="icol-<?php echo ($member->GetPrimary() != '') ? 'application-edit' : 'add' ?>"></i> <?php echo ($member->GetPrimary() != '') ? 'แก้ไข' : 'เพิ่ม' ?> สมาชิก </span> </div>
+                <div class="da-panel-header"> 
+                    <span class="da-panel-title"> <i class="icol-<?php echo ($member->GetPrimary() != '') ? 'application-edit' : 'add' ?>"></i> <?php echo ($member->GetPrimary() != '') ? 'แก้ไข' : 'เพิ่ม' ?> สมาชิก 
+
+                    </span> 
+
+
+
+                </div>
                 <div class="da-panel-content da-form-container">
                     <form id="validate" enctype="multipart/form-data" action="<?php echo ADDRESS_ADMIN_CONTROL ?>member<?php echo ($member->GetPrimary() != '') ? '&action=edit&id=' . $member->GetPrimary() : ''; ?>" method="post" class="da-form">
                         <?php if ($member->GetPrimary() != ''): ?>
@@ -279,6 +307,13 @@ if ($_GET['id'] != '' && $_GET['action'] == 'edit') {
                                     <label class="da-form-label">รหัสสมาชิก : <span class="required"></span></label>
                                     <div class="da-form-item large">
                                         <input type="text" name="member_id" id="" value="<?php echo ($member->GetPrimary() != '') ? $member->GetValue('member_id') : ''; ?>" class="span12" />
+                                    </div><br>
+
+                                </div>
+                                <div class="span6">
+                                    <label class="da-form-label">รหัสสายงาน : <span class="required"></span></label>
+                                    <div class="da-form-item large">
+                                        <input type="text" name="member_group_id" id="" value="<?php echo ($member->GetPrimary() != '') ? $member->GetValue('member_group_id') : ''; ?>" class="span12" />
                                     </div><br>
 
                                 </div>
@@ -315,7 +350,7 @@ if ($_GET['id'] != '' && $_GET['action'] == 'edit') {
 
                                     </div>
                                 </div>
-                                <div class="span6">
+                                <div class="span6 hidden">
 
                                     <label class="da-form-label"><i class="fa fa-clock-o fa-2x "></i>  เวลาหาสมาชิก (วัน) :</label>
                                     <div class="da-form-item large">
@@ -350,7 +385,30 @@ if ($_GET['id'] != '' && $_GET['action'] == 'edit') {
                                 </div>
 
                             </div>
+                            <div class="da-form-row">
+                                <label class="da-form-label"><i class="fa fa-eye fa-2x "></i> จำนวนการแสดงโฆษณา : <span class="required"></span></label>
+                                <div class="da-form-item large">
 
+                                    <ul class="da-form-list">
+                                        <?php
+                                        $getNumberOfad = $member->get_enum_values('number_of_ad');
+
+
+                                        $i = 1;
+
+                                        foreach ($getNumberOfad as $valAd) {
+                                            ?>
+                                            <li>
+                                                <input type="radio" name="number_of_ad" id="number_of_ad" value="<?php echo $valAd ?>" <?php echo ($member->GetPrimary() != "") ? ($member->GetValue('number_of_ad') == $valAd) ? "checked=\"checked\"" : "" : ($i == 1) ? "checked=\"checked\"" : "" ?> class="required"/>
+                                                <label><?php echo $valAd ?> รายการ</label>
+                                            </li>
+                                            <?php
+                                            $i++;
+                                        }
+                                        ?>
+                                    </ul>
+                                </div>
+                            </div>
                             <div class="da-form-row">
                                 <?php
                                 if ($member->GetPrimary() != '') {
@@ -360,18 +418,18 @@ if ($_GET['id'] != '' && $_GET['action'] == 'edit') {
                                 <label class="da-form-label"><i class="fa fa-users fa-2x "></i> สมาชิกที่หาได้</label>
                                 <div class="da-form-item large" id="">
                                     <label class="span1">1.</label>  
-                                    <input type="text" name="member_name[]" value="<?php echo ($member->GetPrimary() != '') ? $arr_member_parent[0] : ''; ?>" class="span6" data-validation=""/>
+                                    <input type="text" name="member_name[]" value="<?php echo ($member->GetPrimary() != '') ? $arr_member_parent[0] : ''; ?>" class="span10" data-validation=""/>
 
                                 </div><br>
                                 <div class="da-form-item large" id="">
                                     <label class="span1 ">2.</label>  
-                                    <input type="text" name="member_name[]" value="<?php echo ($member->GetPrimary() != '') ? $arr_member_parent[1] : ''; ?>" class="span6" data-validation=""/>
+                                    <input type="text" name="member_name[]" value="<?php echo ($member->GetPrimary() != '') ? $arr_member_parent[1] : ''; ?>" class="span10" data-validation=""/>
 
                                 </div><br>
                                 <div class="da-form-item large" id="">
                                     <label class="span1">3.</label>  
 
-                                    <input type="text" name="member_name[]" value="<?php echo ($member->GetPrimary() != '') ? $arr_member_parent[2] : ''; ?>" class="span6" data-validation=""/>
+                                    <input type="text" name="member_name[]" value="<?php echo ($member->GetPrimary() != '') ? $arr_member_parent[2] : ''; ?>" class="span10" data-validation=""/>
 
                                 </div>
                             </div>
@@ -381,12 +439,34 @@ if ($_GET['id'] != '' && $_GET['action'] == 'edit') {
                                     <textarea rows="12" class="span12" name="comment"><?php echo ($member->GetPrimary() != '') ? $member->GetValue('comment') : ''; ?></textarea>
                                 </div>
                             </div>
+                            <div class="da-form-row">
+                                <label class="da-form-label">สถานะ <span class="required">*</span></label>
+                                <div class="da-form-item large">
+                                    <ul class="da-form-list">
+                                        <?php
+                                        $getStatus = $member->get_enum_values('status');
 
+                                        $i = 1;
+
+                                        foreach ($getStatus as $status) {
+                                            ?>
+                                            <li>
+                                                <input type="radio" name="status" id="status" value="<?php echo $status ?>" <?php echo ($member->GetPrimary() != "") ? ($member->GetValue('status') == $status) ? "checked=\"checked\"" : "" : ($i == 1) ? "checked=\"checked\"" : "" ?> class="required"/>
+                                                <label><?php echo $status ?></label>
+                                            </li>
+                                            <?php
+                                            $i++;
+                                        }
+                                        ?>
+                                    </ul>
+                                </div>
+                            </div>
                         </div>
                         <div class="btn-row">
                             <input type="submit" name="submit_bt" value="บันทึกข้อมูล" class="btn btn-success" />
                             <input type="submit" name="submit_bt" value="บันทึกข้อมูล และแก้ไขต่อ" class="btn btn-primary" />
-                            <a href="<?php echo ADDRESS_ADMIN_CONTROL ?>member" class="btn btn-danger">ยกเลิก</a> </div>
+                            <a href="<?php echo ADDRESS_ADMIN_CONTROL ?>member" class="btn btn-danger">ยกเลิก</a>
+                        </div>
                     </form>
                 </div>
             </div>
@@ -419,7 +499,7 @@ if ($_GET['id'] != '' && $_GET['action'] == 'edit') {
                                 <th>รหัสสมาชิก</th>
                                 <th>ชื่อ</th>
                                 <th>เบอร์โทร</th>
-
+                                <th>สถานะ</th>    
                                 <th>แก้ไขล่าสุด</th>
                                 <th>ตัวเลือก</th>
                             </tr>
@@ -427,7 +507,6 @@ if ($_GET['id'] != '' && $_GET['action'] == 'edit') {
                         <tbody>
                             <?php
                             $sql = "SELECT * FROM " . $member->getTbl();
-
 
                             $query = $db->Query($sql);
 
@@ -439,11 +518,13 @@ if ($_GET['id'] != '' && $_GET['action'] == 'edit') {
                                         <td  class="center" width=""><?php echo $row['member_id']; ?></td>
                                         <td  width=""><?php echo $row['name']; ?></td>
                                         <td class="center" width=""><?php echo $row['tel']; ?></td>
+                                        <td class="center" width=""><i class="icol-<?php echo ($row['status'] == 'ใช้งาน') ? 'accept' : 'cross' ?>" title="<?php echo $row['status'] ?>"></i></td>
                                         <td class="center" width=""><?php echo $functions->ShowDateThTime($row['updated_at']) ?></td>
 
                                         <td class="center"  width=""><a href="<?php echo ADDRESS_ADMIN_CONTROL ?>member&action=edit&id=<?php echo $row['id'] ?>" class="btn btn-primary btn-small">แก้ไข / ดู</a> <a href="#" onclick="if (confirm('คุณต้องการลบข้อมูลนี้หรือใม่?') == true) {
                                                                 document.location.href = '<?php echo ADDRESS_ADMIN_CONTROL ?>member&action=del&id=<?php echo $row['id'] ?>'
-                                                                        }" class="btn btn-danger btn-small">ลบ</a></td>
+                                                                        }" class="btn btn-danger btn-small">ลบ</a>
+                                        </td>
                                     </tr>
                                 <?php } ?>
                             <?php } ?>

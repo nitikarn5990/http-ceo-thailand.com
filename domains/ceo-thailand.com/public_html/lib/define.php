@@ -218,7 +218,7 @@ define("RUN_ORDER", date('Ymd'));
 
 define("SETTING_ID", 1);
 
-define('NO_IMAGE', ADDRESS.'images/no_image.jpg');
+define('NO_IMAGE', ADDRESS.'images/placeholder.png');
 
 
 

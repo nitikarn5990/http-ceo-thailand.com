@@ -3,12 +3,48 @@
 session_start();
 include_once ($_SERVER ["DOCUMENT_ROOT"] . '/lib/application.php');
 if ($_COOKIE['user'] == '') {
-    header('location:' . ADDRESS_ADMIN . 'login.php');
+    
+    if ($_SESSION['group'] == 'admin') {
+         header('location:' . ADDRESS_ADMIN . 'login.php');
+    }else{
+         header('location:' . ADDRESS . 'home');
+    }
+   
 }
 if ($_SESSION ['admin_id'] != "") {
-    
+
+    if (PAGE_CONTROLLERS == '') {
+        header('location:' . ADDRESS_ADMIN_CONTROL . 'slides');
+    }
 } else {
-    header('location:' . ADDRESS_ADMIN . 'login.php');
+    if (PAGE_CONTROLLERS == 'member_manage' || PAGE_CONTROLLERS == 'member_profile') {
+         header('location:' . ADDRESS . 'home');
+    }else{
+         header('location:' . ADDRESS_ADMIN . 'login.php');
+    }
+   
+}
+
+//Redirect home page
+if ($_SESSION ['group'] == 'member') {
+
+    $arrUrl = array(
+        'slides',
+        'text_slide',
+        'home',
+        'home_banner',
+        'member',
+        'plan_make_money',
+        'work_system',
+        'registration',
+        'contact',
+        'contact_message',
+        'footer'
+    );
+    if (in_array(PAGE_CONTROLLERS, $arrUrl)) {
+        header('location:' . ADDRESS_ADMIN_CONTROL . "member_manage");
+        die();
+    }
 }
 
 
@@ -28,7 +64,7 @@ if ($_SESSION['admin_id'] == 'demo') {
         <meta name="Keywords" content="">
         <meta name="Description" content="">
 
-      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.1/css/font-awesome.min.css">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.1/css/font-awesome.min.css">
 
         <!-- Bootstrap Stylesheet -->
 
@@ -189,13 +225,20 @@ if ($_SESSION['admin_id'] == 'demo') {
         <script src="assets/input_tags/bootstrap-tagsinput-angular.js"></script>
         <script src="assets/input_tags/bootstrap-tagsinput.js"></script>
         <link rel="stylesheet" href="assets/input_tags/bootstrap-tagsinput.css">
-    
-          <script src="plugins/validate/jquery.form-validator.min.js"></script>
+
+        <script src="plugins/validate/jquery.form-validator.min.js"></script>
+
+        <!-- jquery.countdown.min -->
+        <script src="js/jquery.countdown.min.js"></script>
+
+        <!-- notie แจ้งเตือน popup success -->
+        <link rel="stylesheet" href="plugins/notie/dist/notie.css">
 
 
     </head>  
 
     <body cz-shortcut-listen="true">
+        <script src="plugins/notie/dist/notie.min.js"></script>
 
         <!-- Main Wrapper. Set this to 'fixed' for fixed layout and 'fluid' for fluid layout' -->
         <div id="da-wrapper">
@@ -212,7 +255,7 @@ if ($_SESSION['admin_id'] == 'demo') {
                             <div id="da-logo">
                                 <div id="da-logo-img">
 
-                                    <img src="../images/admin2.png" alt="" style="max-width: 144px;"> 
+                                    <img src="<?= $_SESSION['group'] == 'admin' ? '../images/admin2.png' : '../images/member.png' ?>" alt="" style="max-width: 144px;"> 
 
                                 </div>
                             </div>
@@ -224,14 +267,15 @@ if ($_SESSION['admin_id'] == 'demo') {
                                 <div id="da-user-profile" data-toggle="dropdown" class="clearfix">
                                     <div id="da-user-avatar"></div>
                                     <div id="da-user-info">
-                                        Admin Administrator <span class="da-user-title">Administrator</span>
+                                        <?= $_SESSION['group'] == 'admin' ? 'Admin Administrator' : 'Member' ?>  <span class="da-user-title"> <?= $_SESSION['group'] == 'admin' ? 'Administrator' : $_SESSION['name'] ?> </span>
                                     </div>
                                 </div>
-                                <ul class="dropdown-menu">
-
-                                    <li><a
-                                            href="<?php echo ADDRESS_ADMIN_CONTROL ?>profile&action=edit&id=1">เปลี่ยนรหัสผ่าน</a></li>
-                                </ul>
+                                <?php if ($_SESSION['group'] == 'admin') { ?>
+                                    <ul class="dropdown-menu">
+                                        <li><a
+                                                href="<?php echo ADDRESS_ADMIN_CONTROL ?>profile&action=edit&id=1">เปลี่ยนรหัสผ่าน</a></li>
+                                    </ul>
+                                <?php } ?>
                             </div>
                             <div id="da-header-button-container" >
                                 <ul>
@@ -266,154 +310,16 @@ if ($_SESSION['admin_id'] == 'demo') {
                         <div id="da-sidebar-toggle"></div>
 
                         <!-- Main Navigation -->
-                   
+
                         <div id="da-main-nav" class="btn-container">
-                            <ul>
-                                <li class="<?=
-                                PAGE_CONTROLLERS == 'slides' || $_GET['type'] == 'index' || PAGE_CONTROLLERS == 'home' || PAGE_CONTROLLERS == 'member' || PAGE_CONTROLLERS == 'home_banner' || PAGE_CONTROLLERS == 'text_slide' ? 'active' : ''
-                                ?>"><a href="#"> <!-- Icon Container --> <span
-                                            class="da-nav-icon"> <img src="../images/icon-home.png"
-                                                                  width="32" height="32">
-                                        </span> หน้าแรก
-                                    </a>
-                                    <ul>
-                                        <li class="<?= PAGE_CONTROLLERS == 'slides' ? 'active' : '' ?>"><a href="<?php echo ADDRESS_ADMIN_CONTROL ?>slides">ภาพสไลด์</a></li>
-                                        <li class="<?= PAGE_CONTROLLERS == 'text_slide' ? 'active' : '' ?>"><a href="<?php echo ADDRESS_ADMIN_CONTROL ?>text_slide&action=edit&id=1">อักษรวิ่ง</a></li>
-                                        <li class="<?= PAGE_CONTROLLERS == 'home' ? 'active' : '' ?>"><a  href="<?php echo ADDRESS_ADMIN_CONTROL ?>home&action=edit&id=1">รายละเอียด</a></li>
-                                        <li class="<?= PAGE_CONTROLLERS == 'home_banner' ? 'active' : '' ?>"><a  href="<?php echo ADDRESS_ADMIN_CONTROL ?>home_banner">แบนเนอร์</a></li>
-                                          <li class="<?= PAGE_CONTROLLERS == 'member' ? 'active' : '' ?>"><a href="<?php echo ADDRESS_ADMIN_CONTROL ?>member">สมาชิก</a></li>
-                                    </ul>
-                                </li>
-                                <li class="<?= PAGE_CONTROLLERS == 'plan_make_money' ? 'active' : '' ?>"><a href="#"> <!-- Icon Container --> 
-                                        <span
-                                            class="da-nav-icon"> <img src="images/icon-about.png"
-                                                                  width="32" height="32">
-                                        </span>   แผนการสร้างรายได้
-                                    </a>
-                                    <ul>
-                                        <li class="<?= PAGE_CONTROLLERS == 'plan_make_money' ? 'active' : '' ?>"><a  href="<?php echo ADDRESS_ADMIN_CONTROL ?>plan_make_money&action=edit&id=1">รายละเอียด</a></li>
-
-
-                                    </ul>
-                                </li>
-
-                                <li class="<?= PAGE_CONTROLLERS == 'work_system' ? 'active' : '' ?>"><a href="#"> <!-- Icon Container --> 
-                                        <span
-                                            class="da-nav-icon"> <img src="images/icon-about.png"
-                                                                  width="32" height="32">
-                                        </span>   ระบบงาน
-                                    </a>
-                                    <ul>
-                                        <li class="<?= PAGE_CONTROLLERS == 'work_system' ? 'active' : '' ?>"><a  href="<?php echo ADDRESS_ADMIN_CONTROL ?>work_system&action=edit&id=1">รายละเอียด</a></li>
-
-
-                                    </ul>
-                                </li>
-                                <li class="<?= PAGE_CONTROLLERS == 'registration' ? 'active' : '' ?>"><a href="#"> <!-- Icon Container --> 
-                                        <span
-                                            class="da-nav-icon"> <img src="images/icon-about.png"
-                                                                  width="32" height="32">
-                                        </span>   สมัครสมาชิก
-                                    </a>
-                                    <ul>
-                                        <li class="<?= PAGE_CONTROLLERS == 'registration' ? 'active' : '' ?>"><a  href="<?php echo ADDRESS_ADMIN_CONTROL ?>registration&action=edit&id=1">รายละเอียด</a></li>
-
-                                    </ul>
-                                </li>
-                                <li class="<?= PAGE_CONTROLLERS == 'about' ? 'active' : '' ?>"><a href="#"> <!-- Icon Container --> 
-                                        <span
-                                            class="da-nav-icon"> <img src="images/icon-about.png"
-                                                                  width="32" height="32">
-                                        </span>    About us
-                                    </a>
-                                    <ul>
-                                        <li class="<?= PAGE_CONTROLLERS == 'about' ? 'active' : '' ?>"><a  href="<?php echo ADDRESS_ADMIN_CONTROL ?>about&action=edit&id=1">รายละเอียด</a></li>
-                                    </ul>
-                                </li>
-                                <li class="<?= PAGE_CONTROLLERS == 'gallery' ? 'active' : '' ?>"><a href="#"> <!-- Icon Container --> 
-                                        <span
-                                            class="da-nav-icon"> <img src="images/icon-gallery.png"
-                                                                  width="32" height="32">
-                                        </span>จัดการ Gallery
-                                    </a> 
-                                    <ul>
-                                        <li class="<?= PAGE_CONTROLLERS == 'gallery' ? 'active' : '' ?>"><a  href="<?php echo ADDRESS_ADMIN_CONTROL ?>gallery">Gallery</a></li>
-
-                                    </ul> 
-                                </li>
-
-
-                                <li class="<?= PAGE_CONTROLLERS == 'programs' ? 'active' : '' ?>"><a href="#"> <!-- Icon Container --> <span
-                                            class="da-nav-icon"> <img src="images/icon-program.png" 
-                                                                  width="32" height="32">
-                                        </span> จัดการ Program
-                                    </a>
-                                    <ul>
-                                        <li class="<?= PAGE_CONTROLLERS == 'programs' ? 'active' : '' ?>"><a  href="<?php echo ADDRESS_ADMIN_CONTROL ?>programs">Program</a></li>
-
-
-                                    </ul>
-                                </li>
-                                <li class="<?= PAGE_CONTROLLERS == 'guestbook' ? 'active' : '' ?>"><a href="#"> <!-- Icon Container --> <span
-                                            class="da-nav-icon"> <img src="images/icon-people.png" 
-                                                                  width="32" height="32">
-                                        </span> จัดการ Guestbook
-                                    </a>
-                                    <ul>
-                                        <li class="<?= PAGE_CONTROLLERS == 'guestbook' ? 'active' : '' ?>"><a  href="<?php echo ADDRESS_ADMIN_CONTROL ?>guestbook">Guestbook</a></li>
-
-
-                                    </ul>
-                                </li>
-                                <li class="<?= PAGE_CONTROLLERS == 'social_script' ? 'active' : '' ?>"><a href="#"> <!-- Icon Container --> <span
-                                            class="da-nav-icon"> <img src="images/icon-social.png" 
-                                                                  width="32" height="32">
-                                        </span> สคริป Youtube, Tripadvisor
-                                    </a>
-                                    <ul>
-                                        <li class="<?= PAGE_CONTROLLERS == 'social_script' ? 'active' : '' ?>"><a  href="<?php echo ADDRESS_ADMIN_CONTROL ?>social_script&action=edit&id=1"> Youtube, Tripadvisor</a></li>
-
-                                    </ul>
-                                </li>
-                                <li class="<?= PAGE_CONTROLLERS == 'social' ? 'active' : '' ?>"><a href="#"> <!-- Icon Container --> <span
-                                            class="da-nav-icon"> <img src="images/icon-social.png" 
-                                                                  width="32" height="32">
-                                        </span> จัดการ Social Media
-                                    </a>
-                                    <ul>
-                                        <li class="<?= PAGE_CONTROLLERS == 'social' ? 'active' : '' ?>"><a  href="<?php echo ADDRESS_ADMIN_CONTROL ?>social&action=edit&id=1">Social</a></li>
-
-
-                                    </ul>
-                                </li>
-
-
-                                <li class="<?= PAGE_CONTROLLERS == 'contact' || PAGE_CONTROLLERS == 'contact_message' || $_GET['type'] == 'contact' ? 'active' : ''
-                                ?>"><a href="#"> <!-- Icon Container --> <span
-                                            class="da-nav-icon"> <img src="../images/icon-contact.png"
-                                                                  width="32" height="32">
-                                        </span> ติดต่อเรา
-                                    </a>
-                                    <ul>
-                                        <li class="<?= PAGE_CONTROLLERS == 'contact' ? 'active' : '' ?>"><a
-                                                href="<?php echo ADDRESS_ADMIN_CONTROL ?>contact&action=edit&id=1">รายละเอียด</a></li>
-                                        <li class="<?= PAGE_CONTROLLERS == 'contact_message' ? 'active' : '' ?>"><a
-                                                href="<?php echo ADDRESS_ADMIN_CONTROL ?>contact_message">ข้อความ</a></li>
-                                    </ul>
-                                </li>
-                                <li class="<?= PAGE_CONTROLLERS == 'footer' ? 'active' : '' ?>"><a href="#"> <!-- Icon Container --> <span
-                                            class="da-nav-icon"> <img src="images/icon-social.png" 
-                                                                  width="32" height="32">
-                                        </span> Footer
-                                    </a>
-                                    <ul>
-                                        <li class="<?= PAGE_CONTROLLERS == 'footer' ? 'active' : '' ?>"><a  href="<?php echo ADDRESS_ADMIN_CONTROL ?>footer&action=edit&id=1">Footer</a></li>
-
-
-                                    </ul>
-                                </li>
-
-                            </ul>
+                            <?php
+                            if ($_SESSION['group'] == 'admin') {
+                                include ("inc/admin_menu.php");
+                            }
+                            if ($_SESSION['group'] == 'member') {
+                                include ("inc/member_menu.php");
+                            }
+                            ?>
                         </div>
                     </div>
 
@@ -427,6 +333,7 @@ if ($_SESSION['admin_id'] == 'demo') {
                             ?>
                         </div>
                     </div>
+
                     <script type="text/javascript">
 //$( document ).ready(function() {
                         function addfile() {
@@ -535,7 +442,7 @@ if ($_SESSION['admin_id'] == 'demo') {
     .form-error{
         color: #D32B26;
     }
-    
+
 </style>
 <textarea tabindex="-1"
           style="position: absolute; top: -9999px; left: -9999px; right: auto; bottom: auto; border: 0px; box-sizing: content-box; word-wrap: break-word; overflow: hidden; height: 0px !important; min-height: 0px !important;"></textarea>
@@ -555,7 +462,8 @@ if ($_SESSION['admin_id'] == 'demo') {
     </div>
 </div>
 
- 
+
 <script> $.validate();</script>
+
 </body>
 </html>

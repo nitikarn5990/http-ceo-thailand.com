@@ -23,7 +23,9 @@
                     </div>
                     <div id="da-user-info">
                         <?php echo $users->GetValue("name")?>
-                        <span class="da-user-title">Administrator</span>
+                        <span class="da-user-title">
+                            <?= $_SESSION['group'] == 'admin' ? 'Administrator':'Member'?>
+                        </span>
                     </div>
                 </div>
                 <ul class="dropdown-menu">

@@ -45,14 +45,7 @@
 .placeholder {
     color: #999;
 }
-::-moz-selection {
-    color: #fff;
-    background: #a9ca60;
-}
-::selection {
-    color: #fff;
-    background: #a9ca60;
-}
+
 html, body {
     height: 100%}
 body {

@@ -1,0 +1,1 @@
+<?= $home_banner->getDataDesc("detail", "id = ".$_GET['param2']." AND status = 'ใช้งาน'"); ?>
